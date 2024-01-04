@@ -1,0 +1,85 @@
+@import url("https://api.fontshare.com/v2/css?f[]=switzer@600,701,800,501,601,700,400,401,300,301,801,500&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  max-width: 1000px;
+  padding: 2em;
+  margin: auto;
+  background-color: #D1E4F2;
+}
+
+h1 {
+  font-family: "Switzer", sans-serif;
+  font-weight: Semibold;
+  color: #1D263D
+}
+
+h2 {
+  font-family: "Switzer", sans-serif;
+  font-weight: Semibold;
+}
+
+.header {
+  display: flex;
+  gap: 1em;
+  margin-top: 3em;
+  align-items: center;
+  max-width: 800px;
+  margin-bottom: 3em;
+}
+
+.header img {
+  width: 30%;
+  max-width: 550px;
+  object-fit: cover;
+  padding-right: 5%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1em;
+  margin-top: 2em;
+}
+
+.assignment a {
+  color: #000;
+  text-decoration: none;
+}
+
+.assignment a:hover {
+  color: #72ACDB;
+  transition: ease-in-out;
+  transition-duration: 250ms;
+}
+
+.assignment img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.assignment p {
+  margin-top: 0.5em;
+}

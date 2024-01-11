@@ -4,15 +4,87 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Assignment 1: Blink!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Example Student's Assignment 1!</h1>
-    <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 1!</p>
+    <h1>Assignment 1: Blink!</h1>
+    <p>Jan 11, 2024</p>
+    <div class="project">
+      <img src="a1_picture.JPG" style="width: 100%; max-width: 700px;"/>
+      <p>Image of A1 Circuit</p>
     </div>
+    <p>
+      For Assignment 1, I created a circuit which blinks three LEDs separately.
+      I used a green, white, and red LED and programmed them to blink in succcession.
+      I began first by calculating the resistance needed to each LED.
+    </p>
+    <div class="project">
+      <img src="a1_calc.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      The red and green LEDs contain a voltage drop of 1.8V, thus using Ohm's law,
+      the resistance needed to achieve a current of 20mA would be 160Ω. Rounding up to
+      avoid overloading the LED, I used a 220Ω resistor. The white LED had a 3.3V drop,
+      meaning it required an 85Ω resistance. Rounding up, I used a 100Ω resistor for the white.
+    </p>
+    <div class="project">
+      <img src="a1_schem.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      In my drawn schematic, each LED is supplied voltage from the digital output pin.
+      The current is limited by a resistor, allowing the LED to turn on. The following code was used
+      to blink each LED: <br>
+    </p>
+    <pre>
+      <code>
+   // initializes digital pins as output
+   void setup() {
+     pinMode(13, OUTPUT);   // initializes pin 13 as output
+     pinMode(12, OUTPUT);   // initializes pin 12 as output
+     pinMode(11, OUTPUT);   // initializes pin 11 as output
+   }
+
+   // method to blink LEDs; takes two variables
+   // num = pin number
+   // time = time between actions, defaults to 250 ms 
+   void blink(int num, int time = 250) {
+     digitalWrite(num, HIGH);   // turns LED on
+     delay(time);   // waits specified amount of time
+     digitalWrite(num, LOW);   // turns LED off
+     delay(time);    // waits specified amount of time
+   }
+
+   // loops program repeatedly
+   void loop() {
+     blink(13);   // blinks LED at pin 13
+     blink(12);   // blinks LED at pin 12
+     blink(11);   // blinks LED at pin 11
+   }
+      </code>
+    </pre>
+    <div class="project">
+      <img src="a1.gif" style="width: 100%; max-width: 700px;"/>
+      <p>Working circuit</p>
+    </div>
+    <h2>Questions:</h2>
+    <p>
+      <ol>
+        <li><img src="a1_q1.jpeg"/></li>
+        <li>
+          If you were to use every single digital pin (0-13), you would be able to blink
+          14 LEDs with the arduino. As each LED is blinking independently, the current would depend
+          on the LED and resistor. For red, yellow, and green LEDs with a 220Ω resistor, the current
+          would be 14.5mA. Blue, white, and pink LEDs with a 100Ω resisitor would have a current of 17mA.
+        </li>
+        <li>N/A</li>
+        <li>
+          Based on empirical observations, a delay of about 3ms will make the LEDs appear
+          as if they are no longer blinking.
+        </li>
+      </ol>
+    </p>
+
   </body>
 </html>

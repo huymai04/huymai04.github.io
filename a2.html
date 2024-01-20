@@ -4,15 +4,121 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Assignment 2: Fade!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Example Student's Assignment 2!</h1>
-    <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 2!</p>
+    <h1>Assignment 2: Fade!</h1>
+    <p>Jan 19, 2024</p>
+    <div class="project">
+      <img src="assets/a2/a2_picture.JPG" style="width: 100%; max-width: 700px;"/>
+      <p>Image of A2 Circuit</p>
     </div>
+    <p>
+      For Assignment 2, I created a cirtcuit in which pressing a button caused three
+      LEDs to blink and fade. I used digitalRead with the button to activate the LEDs.
+    </p>
+    <div class="project">
+      <img src="assets/a2/a2_schem.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      The button circuit is connected to the 5V power source on the Arduino. Pin 13
+      is reading input, and measures whether or not the cirtcuit is closed. A 10kΩ resisitor
+      is used to limit the current when the button is pressed. 10k is high enough to limit
+      the current, but not high enough to affect the button.
+      <br>
+      <br>
+      I chose to use two blue and one white LEDs. As all three LEDs have a voltage drop of
+      3.3V, the same resistor value is used (calculation show below). They are connected to pins 3, 5, and 6 as they are
+      PWM pins for using analogWrite.
+    </p>
+    <div class="project">
+      <img src="assets/a2/a2_calc.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      When the button is pressed and completes the input circuit, it activates my code which uses the three output pins to
+      blink and fade the LEDs. The following code was used to blink each LED: <br>
+    </p>
+    <pre>
+      <code>
+// initializes pins as output/input
+void setup() {
+  pinMode(13, INPUT);   // initializes pin 13 to take input from button loop
+  pinMode(6, OUTPUT);   // initializes pin 6 for blue LED
+  pinMode(5, OUTPUT);   // initializes pin 5 for white LED
+  pinMode(3, OUTPUT);   // initializes pin 3 for blue LED
+}
+
+// method to fade LED using analogWrite; takes 3 variables: pin, bright, and fade
+// pin: int representing which pin to be used for output
+// bright: int representing initial LED brightness; defaults to 15
+// fade: int representing increment that LED brightness increases; defaults to 5
+void fade(int pin, int bright = 15, int fade = 5) {
+  while (bright <= 255) {         // while brightness is below/at 255, run loop
+    analogWrite(pin, bright);     // sets LED brightness through output with pin and bright variables
+    bright = bright + fade;       // increases bright by fade amount
+    delay(20);                    // wait 20 seconds
+  }
+  analogWrite(pin, 0);            // resets LED to 0 brightness after loop is completed
+}
+
+// method to blink LED using digitalWrite; takes 2 variables: pin, wait
+// pin: int representing which pin to be used for output
+// wait: int representing delay in ms; defaults to 50ms
+void blink(int pin, int wait = 50) {
+  digitalWrite(pin, HIGH);        // turns LED on at passed pin
+  delay(wait);                    // waits passed delay time
+  digitalWrite(pin, LOW);         // turns LED off
+}
+
+// runs repeatedly
+void loop() {
+  int buttonState = digitalRead(13);  // reads if input pin is HIGH/LOW and assigns to buttonState
+  if (buttonState == HIGH) {          // if buttonState is HIGH (pressed)
+    for (int i = 0; i < 3; i++) {     // for loop running twice; blinks all LEDs rapidly
+      blink(6);                       // calls blink method to blink LED connected to pin 6
+      blink(5);                       // calls blink method to blink LED connected to pin 5
+      blink(3);                       // calls blink method to blink LED connected to pin 3
+      delay(50);                      // delays 50 ms
+    }
+    fade(6);                          // calls fade method to fade LED at pin 6
+    fade(5);                          // calls fade method to fade LED at pin 5
+    fade(3);                          // calls fade method to fade LED at pin 3
+    for (int i = 0; i < 3; i++) {     // same for loop as above- runs twice and blinks all LEDs rapidly
+      blink(6);                       // calls blink method to blink LED connected to pin 6
+      blink(5);                       // calls blink method to blink LED connected to pin 5
+      blink(3);                       // calls blink method to blink LED connected to pin 3
+      delay(50);                      // delays 50 ms
+    }
+  } else {                            // if buttonState is LOW (not pressed)
+    analogWrite(6, 0);                // keeps LED at pin 6 off
+    analogWrite(5, 0);                // keeps LED at pin 5 off
+    analogWrite(3, 0);                // keeps LED at pin 3 off
+  }
+}
+
+      </code>
+    </pre>
+    <div class="project">
+      <img src="assets/a2/a2.gif" style="width: 100%; max-width: 700px;"/>
+      <p>Working circuit</p>
+    </div>
+    <h2>Questions:</h2>
+    <p>
+      <ol>
+        <li>
+          Assuming the LED has a voltage drop of 3.3V:
+          <br>
+          <img src="assets/a2/a2_q1.jpeg"/>
+        </li>
+        <li>
+          Assuming all 3 LEDs were on at once, the battery would power the circuit for
+          23.53 hours.
+          <br>
+          <img src="assets/a2/a2_q2.jpeg"/>
+      </ol>
+    </p>
+
   </body>
 </html>

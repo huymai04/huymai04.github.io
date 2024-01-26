@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Assignment 3: Input output!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Assignment 3: Input output!</h1>
+    <p>Jan 26, 2024</p>
+    <div class="project">
+      <img src="assets/a3/a3_picture.jpg" style="width: 100%; max-width: 700px;"/>
+      <p>Image of A3 Circuit</p>
+    </div>
+    <p>
+      For Assignment 3, I created a circuit which measured light levels and faded
+      two LEDs inversely accordingly.
+    </p>
+    <div class="project">
+      <img src="assets/a3/a3_schem.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      The sensor circuit is connected to the 5V power source on the Arduino. The Arduino's analog in port
+      is then used to measure the voltage at the voltage divider. The input that is read is then corresponding
+      to the output of pins 9 and 10, affecting the brightness of the white and red LEDs respectively.
+      <br>
+      <br>
+      I used a 10kΩ resistor to limit the current after the variable resistor. As shown in the calculation below,
+      10kΩ is enough to lower the current in the case that the variable resistor has a value of 0Ω. As also seen
+      below, I used resistors of 220Ω and 100Ω for the red and white LEDs respectively. 
+    </p>
+    <div class="project">
+      <img src="assets/a3/a3_calc.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      The circuit performs a 5-second calibration at startup, recording the max and min values to determine the
+      range of input. As seen in the code below, the red LED becomes its brightest at the lowest light level while
+      the white LED becomes it's brightest at the highest level. The following code was used to accomplish this: <br>
+    </p>
+    <pre>
+      <code>
+// pin constants, will not change
+const int sensorPin = A0;   // analog pin that sensor is connected to
+const int redPin = 10;      // output pin that is connected to the red LED
+const int whitePin = 9;     // output pin that is connected to the red LED
+
+
+// sensor variables
+int sensorValue = 0;   // initial sensor value; will be overwritten during calibration
+int sensorMin = 1023;  // initial minimum sensor value; any lower number will overwrite
+int sensorMax = 0;     // initial maximum sensor value; any larger number will overwrite
+
+
+// calibrates sensor for max and min values from analogRead
+void setup() {
+  // turns on arduino LED to signify calibration process
+  pinMode(13, OUTPUT);      // designates pin 13 as output
+  digitalWrite(13, HIGH);   // turns on pin 13, turning on the LED
+
+  // logs calibration process within serial monitor
+  Serial.begin(9600);                                                   // sets frequency to 9600 baud
+  Serial.println("-----------------------------------------------");    // divider
+  Serial.println("CALIBRATION PERIOD:");                                // title
+  Serial.println("-----------------------------------------------");    // divider
+
+  // runs calibration period for the initial 5 seconds of startup
+  while (millis() < 5000) {
+    sensorValue = analogRead(sensorPin);    // current reading of the sensor pin is assigned to sensorValue
+    Serial.print("Sensor Value: ");         // prints sensor value label
+    Serial.print(sensorValue);              // prints sensor value
+
+    // overrides sensorMin if current value is lower
+    if (sensorValue < sensorMin) {
+      sensorMin = sensorValue;              // adjusts sensorMin value
+      Serial.print(", NEW MIN");            // reports in serial monitor of change
+    }
+
+    // overrides sensorMax if current value is higher
+    if (sensorValue > sensorMax) {
+      sensorMax = sensorValue;              // adjusts sensorMax value
+      Serial.print(", NEW MAX");            // reports in serial monitor of change
+    }
+
+    Serial.println();                       // creates new line
+  }
+
+  Serial.println("-----------------------------------------------");     // divider
+  Serial.println("CALIBRATION COMPLETED.");                              // reports completion of calibration
+  Serial.print("FINAL MIN: ");                                           // reports final min
+  Serial.println(sensorMin);                                             // final sensorMin value
+  Serial.print("FINAL MAX: ");                                           // reports final max
+  Serial.println(sensorMax);                                             // final sensorMax value
+  Serial.println("-----------------------------------------------");     // divider
+
+  // signals end of calibration period
+  digitalWrite(13, LOW);    // turns off pin 13 and arduino LED
+  
+}
+
+
+// runs repeatedly after initial calibration
+void loop() {
+  // reads the current sensor value
+  sensorValue = analogRead(sensorPin);           // assigns current sensor value to variable
+  Serial.print("Sensor Value: ");                // reports value to serial monitor
+  Serial.print(sensorValue);                     // prints sensor value
+
+  // constrains sensorValue within calibrated min and max to prevent unforseen circumstances
+  int conValue = constrain(sensorValue, sensorMin, sensorMax);     // constrains sensor value to within min and max
+  if (conValue != sensorValue) {                                   // reports constrained value if different
+    Serial.print(" (MOD: ");                                       // reports value to serial monitor
+    Serial.print(conValue);                                        // reports value to serial monitor
+    Serial.print(")");                                             // reports value to serial monitor
+  }
+
+  Serial.println();                                                // prints new line
+
+  // maps output to red and white pins to constrained value
+  int redValue = map(conValue, sensorMin, sensorMax, 255, 0);      // maps value linearly from 0-255 for red LED output
+  int whiteValue = map(conValue, sensorMin, sensorMax, 0, 255);    // maps value inversely from 255-0 for white LED output
+  Serial.print(" R: ");                                            // reports red value to serial monitor
+  Serial.print(redValue);                                          // prints red value
+  Serial.print(", W: ");                                           // reports white value to serial monitor
+  Serial.println(whiteValue);                                      // prints white value
+  Serial.println();                                                // prints new line
+
+  // fade LEDs based on red and white values
+  analogWrite(redPin, redValue);                                   // fades red LED with red value
+  analogWrite(whitePin, whiteValue);                               // fades white LED with white value
+}
+          
+
+      </code>
+    </pre>
+    <div class="project">
+      <img src="assets/a3/a3.gif" style="width: 100%; max-width: 700px;"/>
+      <p>Working circuit</p>
+    </div>
+    <h2>Questions:</h2>
+    <p>
+      <ol>
+        <li>
+          The variable resistor can be either R1 or R2, but the effects will be different.
+          As Vout equates to the voltage though R2, the two scenarios will here inverse Vout values.
+          When light is at its max, Vout in Scenario 1 is 5V while scenario 2 is 0V. If I were to take
+          my circuit and swap R1 and R2, my LEDs would have opposite effects as they currently do.
+          I ean account for this in my code by subtracting Vout from 5V to maintain original functionality. <br>
+          <img src="assets/a3/a3_q1.jpeg"/>
+          <br>
+        </li>
+        <li>
+          <img src="assets/a3/a3_q2.jpeg"/>
+        </li>
+        <li>
+          The larger bit values would mean for smaller ranges in both input and output.
+          In the current state, we are mapping a 0-1023 value to 0-255. Having a 10-bit PWM and
+          a 16-bit analog-to-digital converter would change the bounds for this mapping,
+          changing the input and output ranges. For the 10-bit PWM, the range would be 0-173 instead of 0-255.
+          The 16-bit analog-to-digital converter would have a range of 0-3FF instead of 0-1023. 
+
+        </li>
+      </ol>
+    </p>
+
+  </body>
+</html>

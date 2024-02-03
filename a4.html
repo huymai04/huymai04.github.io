@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Assignment 4: Libraries!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Assignment 4: Libraries!</h1>
+    <p>Feb 2, 2024</p>
+    <div class="project">
+      <img src="assets/a4/a4_picture.jpg" style="width: 100%; max-width: 700px;"/>
+      <p>Image of A4 Circuit</p>
+    </div>
+    <p>
+      For Assignment 4, I created a circuit which used a digital display to respond to
+      buttons pushed on an infrared remote. 
+    </p>
+    <div class="project">
+      <img src="assets/a4/a4_schem.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      I used an IR Remote sensor for input and a 7-segment digital display as output.
+      To use both in my circuit, I used two libraries:
+      <ul>
+        <li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote">IRremote by shirriff, z3t0, ArminJo</a></li>
+        <li><a href="https://github.com/NeMaksym/easy-seven-seg">Easy SevenSeg by Maksym</a></li>
+      </ul><br>
+      The IRremote library allowed me to recieve button input from the remote, which controlled
+      the information displayed. I programmed controls to the 0-9 digit buttons, which I tested
+      by using the serial monitor to retrieve each command code.
+      <br><br>
+      The SevenSeg library allowed me to control output to the digital display. In using the common
+      cathode setup, the common pins (3 and 8) are connected to ground while the rest are to power.
+      They were connected to the arduino and are initialized by the library with the begin() method.
+      As the display uses red LEDs, I calculated for resistor by using a voltage drop of 1.7V (See
+      calculations in red in figure above). 
+      <br><br>
+      The following code was used for my cirtcuit:
+    <pre>
+      <code>
+/*
+  LIBRARIES USED:
+  - IRremote by shirriff, z3t0, ArminJo: https://github.com/Arduino-IRremote/Arduino-IRremote
+  - Easy SevenSeg by Maksym: https://github.com/NeMaksym/easy-seven-seg
+*/  
+
+#define DECODE_NEC  1 // defines decoding protocol
+
+#include <IRremote.h>       // Includes IR Remote library
+#include <EasySevenSeg.h>   // Includes digital display library
+
+int IR_RECEIVE_PIN = 11;    // Assigns infrared input to be 11
+int BUTTON = 0;             // Assigns initial button character to be 0
+
+
+EasySevenSeg myDisplay;     // Initializes an EasySevenSeg class
+
+
+// sets up display and gathers information on IR remote setup
+// prints intro message into serial monitor
+void setup() {
+    myDisplay.begin();      // Sets all pins used to OUPUT; uses A1, A2, A4, A5, 10, 9, 7, 6 if nothing passed
+
+    Serial.begin(9600);     // Sets serial monitor for a baud rate of 9600
+    // [FROM CLASS CODE] Prints file, date, and IRremote version number
+    Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+
+    IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);     // Initializes sensor at specific pin
+
+    Serial.print(F("Ready to receive IR signals at pin "));    // Prints confirmation message
+    Serial.println(IR_RECEIVE_PIN);                            // Reports input pin number for IR sensor
+
+    myDisplay.printDigit(BUTTON);                              // Turns on display initially with value 0
+    delay(1000);                                               // Waits 1 second before beginning reading data
+}
+
+
+// Takes recieved IR remote data and displays number pressed on 7-segment display
+void loop() {
+  // runs if sensor is recieving data
+  if (IrReceiver.decode()) {
+
+    // [FROM CLASS CODE] Prints summary of recieved data
+    IrReceiver.printIRResultShort(&Serial);                     // Prints summary
+    if (IrReceiver.decodedIRData.protocol == UNKNOWN) {         // Runs if protocol recieved is unknown
+      IrReceiver.printIRResultRawFormatted(&Serial, true);      // Prints error message
+    }
+    Serial.println();                                           // Prints new line
+    delay(200);                                                 // Delays 200ms to give time between button presses
+    IrReceiver.resume();                                        // Allows for receiving of next value
+
+    // Assigns BUTTON value based on command recieved
+    switch (IrReceiver.decodedIRData.command){
+      case 0x16:          // When 0 button is pressed
+      BUTTON = 0;         // Assigns button value to 0
+      break;              // Break
+      case 0xC:           // When 1 button is pressed
+      BUTTON = 1;         // Assigns button value to 1
+      break;              // Break
+      case 0x18:          // When 2 button is pressed
+      BUTTON = 2;         // Assigns button value to 2
+      break;              // Break
+      case 0x5E:          // When 3 button is pressed
+      BUTTON = 3;         // Assigns button value to 3
+      break;              // Break
+      case 0x8:           // When 4 button is pressed
+      BUTTON = 4;         // Assigns button value to 4
+      break;              // Break
+      case 0x1C:          // When 5 button is pressed
+      BUTTON = 5;         // Assigns button value to 5
+      break;              // Break
+      case 0x5A:          // When 6 button is pressed
+      BUTTON = 6;         // Assigns button value to 6
+      break;              // Break
+      case 0x42:          // When 7 button is pressed
+      BUTTON = 7;         // Assigns button value to 7
+      break;              // Break
+      case 0x52:          // When 8 button is pressed
+      BUTTON = 8;         // Assigns button value to 8
+      break;              // Break
+      case 0x4A:          // When 9 button is pressed
+      BUTTON = 9;         // Assigns button value to 9
+      break;              // Break
+    }
+
+    myDisplay.printDigit(BUTTON);     // Displays BUTTON value (0-9)
+    delay(1000);                      // Delays 1s before continuing
+  
+  }
+}
+      </code>
+    </pre>
+    <div class="project">
+      <img src="assets/a4/a4.gif" style="width: 50%; max-width: 700px;"/>
+      <p>Working circuit</p>
+    </div>
+    <h2>Questions:</h2>
+    <p>
+      <ol>
+        <li>
+          <b>
+            Say you are using a servo motor you attach to pin 9. In your loop() you have the following code:
+            for (int i=0, < 180, i++){servo.write(i); delay(100);}
+            Draw a graph with the X axis in seconds, for two seconds,
+            and the y-axis the voltage at pin 9 with respect to ground
+          </b><br>
+          The servo motor has a duty-cyle of 1-2 ms and a PWM period of 20 ms. 1 ms corresponds to 0 degrees and increases
+          linearly to 2 ms corresponding to 180 degrees. As the loop is running every 100 ms, it will have run 20 times and
+          rotated to 20 degrees. At the end of two seconds, the PWM period has reached 1.11 ms. With about 10 cycles each loop,
+          this is too small of data to be shown across two seconds. However, each PWM period would become progressively longer
+          as the angle increased. <br>
+          <img src="assets/a4/a4_q1.jpeg"/>
+        </li>
+        <br>
+        <li>
+          <b>
+            Your input device is slightly broken, leading it to give us an erroneous reading 1% of the time.
+            How can we address this? Answer in (pseudo)code.
+          </b><br>
+          <pre>
+            <code>
+  int lastVal = 0;                            // initializes last value
+  
+  loop {
+    value = sensor value                      // gets sensor value
+    diff = ((value - lastVal)/lastVal) * 100  // calculates difference ratio
+    diff = abs(diff)                          // gets absolute value
+    if (diff < 15) {                          // if diff is within 15% of last value, eliminates erroneous values
+      use value   
+    }
+    lastVal = value                           // applies value to be next value
+  }
+            </code>
+          </pre>
+        </li>
+        <br>
+        <li>
+          <b>
+            Your input device is slightly noisy, leading the measurement to randomly deviate from the true
+            measurement up or down by 10%. How can we address this? Answer in (pseudo)code.
+          </b><br>
+          <pre>
+            <code>
+  loop {
+    int sum = 0;                     // creates sum int
+    for (int i = 0; i < 100; i++) {    
+      get value                      // reads sensor data
+      add value to sum               // adds to sum
+    }
+    int sensorValue = sum / 100      // averages last 100 values to get more accurate value
+    use sensorValue for program
+  }
+            </code>
+          </pre>
+        </li>
+      </ol>
+    </p>
+
+  </body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Assignment 5: High(er) voltage and transistors!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Assignment 5: High(er) voltage and transistors!</h1>
+    <p>Feb 16, 2024</p>
+    <div class="project">
+      <img src="assets/a5/a5_picture1.jpg" style="width: 100%; max-width: 700px;"/>
+      <p>Image of A5 Circuit</p>
+      <img src="assets/a5/a5_picture2.jpg" style="width: 100%; max-width: 700px;"/>
+      <p>Closeup of Arduino and IR sensor</p>
+    </div>
+    <p>
+      For Assignment 5, I created a circuit which allowed me to control an LED strip with an IR remote.
+    </p>
+    <div class="project">
+      <img src="assets/a5/a5_schem.jpeg" style="width: 100%; max-width: 700px;"/>
+    </div>
+    <p>
+      For the IR Remote sensor, I used the IRremote library:
+      <ul>
+        <li><a href="https://github.com/Arduino-IRremote/Arduino-IRremote">IRremote by shirriff, z3t0, ArminJo</a></li>
+      </ul><br>
+      The IRremote library allowed me to recieve button input from the remote, which allowed me to control the LED strip.
+      This was controlled using the gate at with the transistor. 
+      <br><br>
+      The IR sensor is connected to the Arduino, which powers it at 5V. Looking at the datasheet for the IR sensor, it operates at a range
+      of 0.4 to 1.5 mA. The LED strip and transistor, on the other hand, are connected to the power supply at 12V. One LED segment has a length
+      of 5 cm. As the entire strip is 5 m, it means that there are 1000 segments in the total strip. Each segment has three white LEDs, meaning
+      a total voltage drop of 9.9V. With a 12V power supply, then there is a 2.1V drop across the resistor. Using Ohm's law and the resistor value
+      of 240 ohms, each LED segment has a current of 0.00875 A. As all segments are in parallel, the total current drawn is 8.75 A. This total amount
+      then flows into the transistor. The transistor can handle a max current of 80 A, so this is okay. The transistor also recieves 0-5V at the
+      gate, which is supplied by the PWM pin on the arduino. 
+      <br><br>
+      The following code was used for my cirtcuit:
+    <pre>
+      <code>
+#define DECODE_NEC  1         // defines decoding protocol
+
+#include &ltIRremote.h>        // IRremote by shirriff, z3t0, ArminJo: https://github.com/Arduino-IRremote/Arduino-IRremote
+
+int LED_PIN = 5;              // pin attatched to transistor for LED strip
+int IR_RECEIVE_PIN = 11;      // pin set to be infared input
+
+bool ON_STATE = false;        // sets initial on state to be off
+int BRIGHTNESS = 125;         // sets initial brightness to be 125
+
+
+void setup() {
+  Serial.begin(9600);         // sets serial monitor for a baud rate of 9600
+  // [FROM CLASS CODE] prints file, date, and IRremote version number
+  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);     // initializes sensor at specified pin
+
+  Serial.print(F("Ready to receive IR signals at pin "));    // prints confirmation message
+  Serial.println(IR_RECEIVE_PIN);                            // prints infrared pin number
+  analogWrite(LED_PIN, 255);                                 // turns LED strip on initially to test functionality
+  delay(1000);                                               // waits 1 second
+  analogWrite(LED_PIN, 0);                                   // turns off LED
+}
+
+void loop() {
+  // runs if sensor is recieving data
+  if (IrReceiver.decode()) {
+
+    // [FROM CLASS CODE] Prints summary of recieved data
+    IrReceiver.printIRResultShort(&Serial);                     // Prints summary
+    if (IrReceiver.decodedIRData.protocol == UNKNOWN) {         // Runs if protocol recieved is unknown
+      IrReceiver.printIRResultRawFormatted(&Serial, true);      // Prints error message
+    }
+    Serial.println();                                           // Prints new line
+    delay(200);                                                 // Delays 200ms to give time between button presses
+    IrReceiver.resume();                                        // Allows for receiving of next value
+
+    // runs if power, up, or down buttons are pressed
+    if (IrReceiver.decodedIRData.command == 0x45) {             // if power button is pressed
+      ON_STATE = !ON_STATE;                                     // turns power on/off
+      Serial.println(ON_STATE);                                 // prints 
+    } else if (IrReceiver.decodedIRData.command == 0x9) {       // if up button is pressed
+      if (BRIGHTNESS < 255) {                                   // as long as brightness is below 255
+        BRIGHTNESS+=25;                                         // increase brightness by 255
+      }
+      Serial.println(BRIGHTNESS);                               // prints brightness
+    } else if (IrReceiver.decodedIRData.command == 0x7) {       // if down button is pressed
+      if (BRIGHTNESS > 0) {                                     // as long as brightness is above 0
+        BRIGHTNESS-=25;                                         // lowers brightness by 25
+      }
+      Serial.println(BRIGHTNESS);                               // prints brightness
+    }
+    
+    BRIGHTNESS = constrain(BRIGHTNESS, 0, 255);                 // constrains brightness between 0 and 255
+
+    if (ON_STATE) {                                             // if LED strip on state is true
+      analogWrite(LED_PIN, BRIGHTNESS);                         // analogWrite to adjust the LED strip brightness with the transistor
+    } else {                                                    // if on state is false
+      analogWrite(LED_PIN, 0);                                  // turns LED strip off
+    }
+  }
+}
+
+        
+      </code>
+    </pre>
+    <div class="project">
+      <img src="assets/a5/a5.gif" style="width: 50%; max-width: 700px;"/>
+      <p>Working circuit</p>
+    </div>
+    <h2>Questions:</h2>
+    <p>
+      <ol>
+        <li>
+          <b>
+            What is the absolute maximum amount of current between pins 2 and 3?
+          </b><br>
+          The highest amount of current between pins 2 (drain) and 3 (source) is 80 A
+          with a pulsed current. If the current is continuous, the maxiumum current is
+          37.2 A. <br>
+        </li>
+        <br>
+        <li>
+          <b>
+            Draw a schematic for a circuit with using at least your arduino, a DC motor,
+            a flyback diode, and capacitors between power and ground. Find parts with datasheets
+            you could use for each of these schematic components.
+          </b><br>
+          <img src="assets/a5/a5_q2.jpeg"/><br>
+          <ul>
+            <li><a href="https://cdn.sparkfun.com/datasheets/Robotics/RP6%20motor%20TFK280SC-21138-45.pdf">DC Motor</a></li>
+            <li><a href="https://datasheet.octopart.com/1.5KE180CA-Littelfuse-datasheet-65933517.pdf?_gl=1*1qwfnhc*_ga*NjY2NjQxMTcxLjE3MDgxMjkyMzc.*_ga_SNYD338KXX*MTcwODEyOTIzNy4xLjEuMTcwODEyOTc0OS4wLjAuMA..">Diode</a></li>
+            <li><a href="https://www.farnell.com/datasheets/2918259.pdf">Capacitor</a></li>
+          </ul>
+        </li>
+        <br>
+        <li>
+          <b>
+            Draw a schematic using at least your arduino, this chip, and two motors. Write (pseudo) code
+            that shows how you would move the motors both forward, both back, then one forward one back,
+            and one back then forward.
+          </b><br>
+          <img src="assets/a5/a5_q3.jpeg"/><br>
+        </li>
+      </ol>
+    </p>
+
+  </body>
+</html>

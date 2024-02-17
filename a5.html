@@ -62,6 +62,10 @@ void setup() {
 
   Serial.print(F("Ready to receive IR signals at pin "));    // prints confirmation message
   Serial.println(IR_RECEIVE_PIN);                            // prints infrared pin number
+
+  // there is no need to use pinMode as I am using analogWrite. However, when the pin is outputting 0V, the transistor
+  // is not letting current flow. When it is 5V, it is allowing current.
+
   analogWrite(LED_PIN, 255);                                 // turns LED strip on initially to test functionality
   delay(1000);                                               // waits 1 second
   analogWrite(LED_PIN, 0);                                   // turns off LED

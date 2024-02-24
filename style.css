@@ -93,3 +93,12 @@ h2 {
   align-items: center;
   margin-bottom: 3em;
 }
+
+pre {
+  background-color: #f9f9f9;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 5px;
+  border-color: gray;
+  border-width: 2px;
+}

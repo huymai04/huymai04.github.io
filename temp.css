@@ -78,6 +78,7 @@ hr {
 
 .container-img {
     width: 75%;
+    height: auto;
     max-width: 700px;
     border: black 1px inset;
     align-self: center;
@@ -138,20 +139,16 @@ hr {
     gap: 8px;
 }
 
-@media screen and (max-width: 900px) {
-    div.content {
-        width: 100%;
-        flex-wrap: wrap;
-    }
-    div.sidebar {
-        width: 100%;
-    }
+.video-container {
+    width: 75%;
+    height: auto;
+    aspect-ratio: 16/9;
+    max-width: 700px;
+    border: black 1px inset;
+    align-self: center;
+    margin: 20px;
+}
 
-    div.pfp img {
-        width:30%;
-    }
-
-    .assignment {
-        width: 100%;
-    }
-  }
+pre {
+    background-color: white;
+    padding-left: 30p

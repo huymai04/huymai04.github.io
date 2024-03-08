@@ -151,4 +151,27 @@ hr {
 
 pre {
     background-color: white;
-    padding-left: 30p
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 20px;
+    border-radius: 8px;
+    border: lightgray 1px ridge;
+  }
+
+@media screen and (max-width: 900px) {
+    div.content {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    div.sidebar {
+        width: 100%;
+    }
+
+    div.pfp img {
+        width:30%;
+    }
+
+    .assignment {
+        width: 100%;
+    }
+  }
